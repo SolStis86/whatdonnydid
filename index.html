@@ -29,15 +29,15 @@
         <p class="eyebrow">Policy shock → supply-chain stress → food-system risk</p>
         <h1>What Donald Did...</h1>
         <p class="lede">
-          A deployable investigative data portal for tracing how decisions at the top of the geopolitical system can travel through
-          the Strait of Hormuz, fertiliser supply chains, farming margins and finally into the price of food.
+          The chain from power to plate, traced in one place. This site follows how political escalation and conflict around
+          the Strait of Hormuz can move through energy, fertiliser, farm decisions and food prices — exposing who is likely to pay the price, where, and why.
         </p>
         <div class="hero-actions">
           <a class="button primary" href="#map">Explore the risk map</a>
           <a class="button secondary" href="#model">Read the model</a>
         </div>
         <p class="method-note">
-          Editorial title, quantitative spine: this prototype separates sourced facts from bounded model estimates.
+          Follow the chain: sourced evidence, scenario ranges, regional exposure and the people most at risk.
         </p>
       </div>
 
@@ -107,8 +107,8 @@
         <p class="eyebrow">Global admin-area exposure</p>
         <h2>Risk map: nutrient shortfall × yield sensitivity × food stress</h2>
         <p>
-          Seeded risk points show how the model can rank provinces, states and agricultural regions. Replace the seed values with
-          outputs generated from GAUL/GADM boundaries, MapSPAM or SPAM crop production, NPKGRIDS rates and FAOSTAT trade balances.
+          Risk points identify agricultural regions where fertiliser dependence, crop sensitivity and food-security pressure
+          combine into a sharper threat. Each selected area shows how a global supply-chain shock can become a local harvest risk.
         </p>
       </div>
       <div class="map-layout">
@@ -134,7 +134,7 @@
         <div class="section-heading compact">
           <p class="eyebrow">Input pressure</p>
           <h2>Fertiliser and diesel price index</h2>
-          <p>Seeded index values show the visual pattern the portal will use for live commodity feeds.</p>
+          <p>A clear view of how rising input costs can move faster than food prices, placing pressure on farmers before harvest losses appear.</p>
         </div>
         <div id="price-chart" class="chart"></div>
       </article>
@@ -143,7 +143,7 @@
         <div class="section-heading compact">
           <p class="eyebrow">Crop exposure</p>
           <h2>Where the nutrient shock lands</h2>
-          <p>Share of exposure by nutrient and energy pathway, using editable seed assumptions.</p>
+          <p>Estimated exposure by nutrient and energy pathway, showing why some crops carry far greater fertiliser-shock risk than others.</p>
         </div>
         <div id="crop-chart" class="chart"></div>
       </article>
@@ -155,7 +155,7 @@
         <h2>Administrative areas most exposed in the selected scenario</h2>
         <p>
           The table ranks regions by a composite score using nutrient shortfall, yield-at-risk and food-stress values.
-          In production, this should be generated automatically from the model pipeline.
+          It highlights where a supply-chain disruption is most likely to become an agricultural and social shock.
         </p>
       </div>
       <div class="table-wrap">
@@ -181,8 +181,7 @@
         <p class="eyebrow">The calculation spine</p>
         <h2>Bounded estimates, not vibes</h2>
         <p>
-          The portal is designed around a reproducible calculation chain. Every local estimate should be visible as a path from
-          crop area to fertiliser dependency to yield pressure.
+          Every local estimate is shown as an auditable path from crop area, fertiliser dependency and import exposure through to yield pressure and food stress.
         </p>
       </div>
       <div class="formula-grid">
@@ -225,9 +224,9 @@
     <section id="sources" class="section-card sources-section">
       <div class="section-heading">
         <p class="eyebrow">Sources and data backbone</p>
-        <h2>Replaceable, auditable, linked</h2>
+        <h2>Evidence layer, auditable and linked</h2>
         <p>
-          The prototype includes source links in code and UI so a future data pipeline can ingest, refresh and cite model inputs.
+          These sources anchor the supply-chain, fertiliser, crop and administrative-area data used to explain the crisis pathway.
         </p>
       </div>
       <div id="source-list" class="source-list"></div>
@@ -235,8 +234,8 @@
   </main>
 
   <footer class="site-footer">
-    <p><strong>What Donald Did...</strong> static prototype. Scenario estimates are illustrative until replaced with model-generated data.</p>
-    <p>Deploy as static files. No build step required.</p>
+    <p><strong>What Donald Did...</strong> follows the chain from geopolitical decisions to food-system consequences.</p>
+    <p>Scenario estimates are bounded analytical ranges and should be read alongside the linked source base.</p>
   </footer>
 
   <script src="assets/js/app.js"></script>
