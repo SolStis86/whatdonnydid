@@ -46,34 +46,36 @@ function applyPublicCopy() {
 }
 
 function initScenarioDock() {
-  const panel = document.querySelector(".hero-panel");
-  const hero = document.querySelector(".hero");
-  if (!panel || !hero) return;
-  let triggerY = 0;
-  const recalc = () => {
-    panel.classList.remove("is-docked");
-    triggerY = window.scrollY + panel.getBoundingClientRect().top + Math.min(panel.offsetHeight * .35, 220);
-    updateDock();
-  };
+  const original = document.querySelector(".hero-panel");
+  if (!original) return;
+  const floating = original.cloneNode(true);
+  floating.className = "scenario-float";
+  floating.setAttribute("aria-label", "Floating scenario configurator");
+  document.body.appendChild(floating);
+
+  floating.querySelectorAll(".scenario-button").forEach(button => {
+    button.addEventListener("click", () => updateScenario(button.dataset.scenario));
+  });
+
   const updateDock = () => {
     const isDesktop = window.matchMedia("(min-width: 1081px)").matches;
-    const shouldDock = isDesktop && window.scrollY > triggerY;
-    panel.classList.toggle("is-docked", shouldDock);
-    document.body.classList.toggle("has-scenario-dock", shouldDock);
+    const rect = original.getBoundingClientRect();
+    const hasPassedOriginal = rect.bottom < 96;
+    floating.classList.toggle("is-visible", isDesktop && hasPassedOriginal);
   };
+
   window.addEventListener("scroll", updateDock, { passive: true });
-  window.addEventListener("resize", recalc);
-  setTimeout(recalc, 250);
+  window.addEventListener("resize", updateDock);
+  updateDock();
 }
 
 function updateScenario(scenario) {
   activeScenario = scenario;
   const scenarioData = DATA.scenarios[scenario];
   document.querySelectorAll(".scenario-button").forEach(btn => btn.classList.toggle("active", btn.dataset.scenario === scenario));
-  setText("scenario-label", scenarioData.label);
-  setText("scenario-description", scenarioData.description);
-  const meter = document.querySelector(".shock-meter span");
-  if (meter) meter.style.width = `${scenarioRank[scenario]}%`;
+  document.querySelectorAll("#scenario-label, .scenario-float .panel-topline strong").forEach(node => { node.textContent = scenarioData.label; });
+  document.querySelectorAll("#scenario-description, .scenario-float .scenario-description").forEach(node => { node.textContent = scenarioData.description; });
+  document.querySelectorAll(".shock-meter span").forEach(meter => { meter.style.width = `${scenarioRank[scenario]}%`; });
   setText("metric-urea", scenarioData.global.ureaExposure);
   setText("metric-ammonia", scenarioData.global.ammoniaTradeAtRisk);
   setText("metric-yield", scenarioData.global.yieldPressure);
@@ -90,7 +92,6 @@ function renderCascade() {
   mount.innerHTML = DATA.cascade.map((item, index) => `<article class="cascade-step"><span class="cascade-index">${String(index + 1).padStart(2, "0")}</span><h3>${item.label}</h3><p>${item.detail}</p></article>`).join("");
 }
 const project = (lon, lat, width, height) => ({ x: ((lon + 180) / 360) * width, y: ((90 - lat) / 180) * height });
-
 function renderMap() {
   const mount = document.getElementById("risk-map");
   if (!mount) return;
@@ -102,43 +103,21 @@ function renderMap() {
   mount.innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">${graticule.join("")}${land}${points}</svg>`;
   mount.querySelectorAll("[data-region]").forEach(node => { const region = DATA.regions.find(r => r.id === node.dataset.region); node.addEventListener("click", () => renderRegionDetail(region)); node.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") renderRegionDetail(region); }); });
 }
-
 function renderRegionDetail(region) {
   const mount = document.getElementById("region-detail");
   if (!mount || !region) return;
   const r = region[activeScenario], score = composite(region);
   mount.innerHTML = `<p class="eyebrow">Selected region</p><h3>${region.name}, ${region.country}</h3><div class="big-score" style="color:${riskColor(score)}">${score}</div><p><strong>Composite risk score</strong> under the ${DATA.scenarios[activeScenario].label.toLowerCase()} scenario.</p><div class="detail-grid"><div class="detail-row"><span>Nutrient shortfall</span><strong>${r.nutrientShortfall}%</strong></div><div class="detail-row"><span>Yield-at-risk</span><strong>${r.yieldAtRisk}%</strong></div><div class="detail-row"><span>Production risk</span><strong>${r.productionRiskMt} Mt</strong></div><div class="detail-row"><span>Food-stress score</span><strong>${r.foodStress} / 100</strong></div></div><p><strong>Main crops:</strong> ${region.crops.join(", ")}</p><p>${region.driver}</p>`;
 }
-
 function renderTable() {
   const mount = document.getElementById("regions-table");
   if (!mount) return;
   mount.innerHTML = [...DATA.regions].sort((a, b) => composite(b) - composite(a)).map((region, index) => { const r = region[activeScenario], score = composite(region); return `<tr><td><span class="score-pill" style="color:${riskColor(score)}">#${index + 1}</span></td><td><strong>${region.name}</strong><span>${region.country}</span></td><td>${region.crops.join(", ")}</td><td>${r.nutrientShortfall}%</td><td>${r.yieldAtRisk}%</td><td>${r.productionRiskMt} Mt</td><td><span class="score-pill" style="background:${riskColor(score)}22;color:${riskColor(score)}">${r.foodStress}</span></td></tr>`; }).join("");
 }
-
-function linePath(values, width, height, pad, key) {
-  const max = Math.max(...DATA.timeline.flatMap(d => [d.urea, d.dap, d.diesel]));
-  return values.map((d, i) => { const x = pad + (i * ((width - pad * 2) / (values.length - 1))), y = height - pad - (((d[key] - 90) / (max - 90)) * (height - pad * 2)); return `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`; }).join(" ");
-}
-function renderPriceChart() {
-  const mount = document.getElementById("price-chart");
-  if (!mount) return;
-  const width = 600, height = 380, pad = 48;
-  const monthLabels = DATA.timeline.map((d, i) => `<text class="axis" x="${pad + (i * ((width - pad * 2) / (DATA.timeline.length - 1)))}" y="${height - 18}" text-anchor="middle">${d.month}</text>`).join("");
-  mount.innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none"><text class="chart-label" x="${pad}" y="26">Index, Jan = 100</text><path class="line-urea" d="${linePath(DATA.timeline, width, height, pad, "urea")}"></path><path class="line-dap" d="${linePath(DATA.timeline, width, height, pad, "dap")}"></path><path class="line-diesel" d="${linePath(DATA.timeline, width, height, pad, "diesel")}"></path>${monthLabels}<text class="chart-label" x="${width - 170}" y="38" fill="#ef4444">Urea</text><text class="chart-label" x="${width - 170}" y="60" fill="#f97316">DAP</text><text class="chart-label" x="${width - 170}" y="82" fill="#fbbf24">Diesel</text></svg>`;
-}
-function renderCropChart() {
-  const mount = document.getElementById("crop-chart");
-  if (!mount) return;
-  const width = 600, height = 380, pad = 50, barHeight = 34, gap = 28, colors = { nitrogen: "#ef4444", phosphate: "#f97316", potash: "#fbbf24", energy: "#38bdf8" };
-  const bars = DATA.cropExposure.map((crop, i) => { let x = pad + 90; const y = 70 + i * (barHeight + gap); const segments = ["nitrogen", "phosphate", "potash", "energy"].map(key => { const w = crop[key] * 3.3; const rect = `<rect x="${x}" y="${y}" width="${w}" height="${barHeight}" rx="8" fill="${colors[key]}"></rect>`; x += w; return rect; }).join(""); return `<text class="axis" x="${pad}" y="${y + 22}">${crop.crop}</text>${segments}`; }).join("");
-  mount.innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none"><text class="chart-label" x="${pad}" y="30">Exposure share by pathway</text>${bars}<circle cx="330" cy="30" r="5" fill="${colors.nitrogen}"></circle><text class="axis" x="340" y="34">N</text><circle cx="375" cy="30" r="5" fill="${colors.phosphate}"></circle><text class="axis" x="385" y="34">P₂O₅</text><circle cx="445" cy="30" r="5" fill="${colors.potash}"></circle><text class="axis" x="455" y="34">K₂O</text><circle cx="515" cy="30" r="5" fill="${colors.energy}"></circle><text class="axis" x="525" y="34">Energy</text></svg>`;
-}
-function renderSources() {
-  const mount = document.getElementById("source-list");
-  if (!mount) return;
-  mount.innerHTML = DATA.sources.map(source => `<a class="source-link" href="${source.url}" target="_blank" rel="noreferrer"><strong>${source.name}</strong><span>↗</span></a>`).join("");
-}
+function linePath(values, width, height, pad, key) { const max = Math.max(...DATA.timeline.flatMap(d => [d.urea, d.dap, d.diesel])); return values.map((d, i) => { const x = pad + (i * ((width - pad * 2) / (values.length - 1))), y = height - pad - (((d[key] - 90) / (max - 90)) * (height - pad * 2)); return `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`; }).join(" "); }
+function renderPriceChart() { const mount = document.getElementById("price-chart"); if (!mount) return; const width = 600, height = 380, pad = 48; const monthLabels = DATA.timeline.map((d, i) => `<text class="axis" x="${pad + (i * ((width - pad * 2) / (DATA.timeline.length - 1)))}" y="${height - 18}" text-anchor="middle">${d.month}</text>`).join(""); mount.innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none"><text class="chart-label" x="${pad}" y="26">Index, Jan = 100</text><path class="line-urea" d="${linePath(DATA.timeline, width, height, pad, "urea")}"></path><path class="line-dap" d="${linePath(DATA.timeline, width, height, pad, "dap")}"></path><path class="line-diesel" d="${linePath(DATA.timeline, width, height, pad, "diesel")}"></path>${monthLabels}<text class="chart-label" x="${width - 170}" y="38" fill="#ef4444">Urea</text><text class="chart-label" x="${width - 170}" y="60" fill="#f97316">DAP</text><text class="chart-label" x="${width - 170}" y="82" fill="#fbbf24">Diesel</text></svg>`; }
+function renderCropChart() { const mount = document.getElementById("crop-chart"); if (!mount) return; const width = 600, height = 380, pad = 50, barHeight = 34, gap = 28, colors = { nitrogen: "#ef4444", phosphate: "#f97316", potash: "#fbbf24", energy: "#38bdf8" }; const bars = DATA.cropExposure.map((crop, i) => { let x = pad + 90; const y = 70 + i * (barHeight + gap); const segments = ["nitrogen", "phosphate", "potash", "energy"].map(key => { const w = crop[key] * 3.3; const rect = `<rect x="${x}" y="${y}" width="${w}" height="${barHeight}" rx="8" fill="${colors[key]}"></rect>`; x += w; return rect; }).join(""); return `<text class="axis" x="${pad}" y="${y + 22}">${crop.crop}</text>${segments}`; }).join(""); mount.innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none"><text class="chart-label" x="${pad}" y="30">Exposure share by pathway</text>${bars}<circle cx="330" cy="30" r="5" fill="${colors.nitrogen}"></circle><text class="axis" x="340" y="34">N</text><circle cx="375" cy="30" r="5" fill="${colors.phosphate}"></circle><text class="axis" x="385" y="34">P₂O₅</text><circle cx="445" cy="30" r="5" fill="${colors.potash}"></circle><text class="axis" x="455" y="34">K₂O</text><circle cx="515" cy="30" r="5" fill="${colors.energy}"></circle><text class="axis" x="525" y="34">Energy</text></svg>`; }
+function renderSources() { const mount = document.getElementById("source-list"); if (!mount) return; mount.innerHTML = DATA.sources.map(source => `<a class="source-link" href="${source.url}" target="_blank" rel="noreferrer"><strong>${source.name}</strong><span>↗</span></a>`).join(""); }
 
 document.addEventListener("DOMContentLoaded", () => {
   applyPublicCopy();
