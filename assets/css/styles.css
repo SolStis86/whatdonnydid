@@ -81,9 +81,11 @@ h3 { font-size: 1.35rem; line-height: 1.1; letter-spacing: -.04em; margin-bottom
 .cascade-step:last-child::after { content: ""; }
 .cascade-index { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: linear-gradient(135deg, var(--red), var(--orange)); margin-bottom: .8rem; font-weight: 900; }
 .cascade-step p { color: var(--muted); font-size: .92rem; margin: 0; }
+.map-section { max-width: none; margin-left: 0; margin-right: 0; border-radius: 0; }
+.map-section .section-heading { max-width: var(--max); margin-left: auto; margin-right: auto; }
 .map-layout { display: grid; grid-template-columns: 1fr 330px; gap: 1rem; }
 .map-card { border: 1px solid rgba(255,255,255,.1); border-radius: 22px; padding: .75rem; background: rgba(0,0,0,.2); }
-.risk-map { position: relative; height: 540px; overflow: hidden; border-radius: 18px; background: radial-gradient(circle at 30% 40%, rgba(56,189,248,.12), transparent 18rem), radial-gradient(circle at 70% 55%, rgba(249,115,22,.16), transparent 18rem), linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02)); }
+.risk-map { position: relative; height: clamp(480px, 68vh, 760px); overflow: hidden; border-radius: 18px; background: radial-gradient(circle at 30% 40%, rgba(56,189,248,.12), transparent 18rem), radial-gradient(circle at 70% 55%, rgba(249,115,22,.16), transparent 18rem), linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02)); }
 .risk-map svg { width: 100%; height: 100%; display: block; }
 .land { fill: rgba(255,255,255,.075); stroke: rgba(255,255,255,.12); stroke-width: 1; }
 .graticule { stroke: rgba(255,255,255,.06); stroke-width: 1; }
@@ -176,5 +178,5 @@ code { display: block; color: #fff6ed; background: rgba(0,0,0,.38); border: 1px 
   h1 { font-size: clamp(4rem, 22vw, 6rem); }
   .metrics, .cascade, .formula-grid, .source-list { grid-template-columns: 1fr; }
   .metric-card.danger { grid-column: auto; }
-  .risk-map { height: 420px; }
+  .risk-map { height: clamp(360px, 55vw, 480px); }
 }
