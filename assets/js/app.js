@@ -22,6 +22,9 @@ const DATA = {
 
 let activeScenario = "base";
 let selectedRegionId = "sindh";
+let riskMapInstance = null;
+let riskMarkerLayer = null;
+let riskMarkers = new Map();
 const scenarioRank = { lower: 38, base: 62, upper: 92 };
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const riskColor = score => score >= 85 ? "#ef4444" : score >= 65 ? "#f97316" : score >= 40 ? "#fbbf24" : "#22c55e";
@@ -96,36 +99,51 @@ function renderCascade() {
   mount.innerHTML = DATA.cascade.map((item, index) => `<article class="cascade-step"><span class="cascade-index">${String(index + 1).padStart(2, "0")}</span><h3>${item.label}</h3><p>${item.detail}</p></article>`).join("");
 }
 
-const project = (lon, lat, width, height) => ({ x: ((lon + 180) / 360) * width, y: ((90 - lat) / 180) * height });
-function polyPath(points, width, height) { return points.map((p, i) => { const xy = project(p[0], p[1], width, height); return `${i === 0 ? "M" : "L"}${xy.x.toFixed(1)},${xy.y.toFixed(1)}`; }).join(" ") + " Z"; }
 function productionRadius(mt) { return clamp(7 + Math.sqrt(Math.max(mt, 0.1)) * 5.2, 9, 23); }
 
 function renderMap() {
   const mount = document.getElementById("risk-map");
   if (!mount) return;
-  const width = 1000, height = 540, graticule = [];
-  for (let lon = -120; lon <= 120; lon += 60) { const p1 = project(lon, -72, width, height), p2 = project(lon, 72, width, height); graticule.push(`<line class="graticule" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}"></line>`); }
-  for (let lat = -60; lat <= 60; lat += 30) { const p1 = project(-175, lat, width, height), p2 = project(175, lat, width, height); graticule.push(`<line class="graticule" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}"></line>`); }
-  const continents = [
-    [[-168,70],[-135,72],[-105,60],[-82,52],[-60,46],[-68,20],[-92,15],[-108,25],[-125,45],[-150,58]],
-    [[-82,12],[-70,-5],[-76,-22],[-66,-55],[-48,-38],[-36,-10],[-52,6],[-65,12]],
-    [[-18,35],[-5,58],[25,70],[60,62],[105,72],[150,58],[160,25],[112,10],[70,22],[38,8],[15,36]],
-    [[-18,32],[12,36],[38,12],[48,-22],[30,-35],[12,-35],[-5,-22],[-15,4]],
-    [[112,-12],[153,-12],[154,-37],[134,-44],[114,-32]],
-    [[-52,72],[-30,75],[-18,66],[-40,58],[-56,62]],
-    [[68,24],[78,30],[90,22],[82,8],[72,6]],
-    [[138,38],[146,43],[143,33]]
-  ].map(points => `<path class="continent" d="${polyPath(points, width, height)}"></path>`).join("");
-  const points = DATA.regions.map(region => {
-    const { x, y } = project(region.lon, region.lat, width, height), score = composite(region), r = region[activeScenario], radius = productionRadius(r.productionRiskMt), selected = region.id === selectedRegionId;
-    return `<g data-region="${region.id}" class="map-region ${selected ? "selected" : ""}" tabindex="0" role="button" aria-label="${region.name}, ${region.country}"><circle class="risk-point" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${radius.toFixed(1)}" fill="${riskColor(score)}" opacity="0.9"></circle><circle class="risk-ring" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(radius + 5).toFixed(1)}"></circle><text class="risk-label" x="${(x + radius + 7).toFixed(1)}" y="${(y - radius - 7).toFixed(1)}">${region.name}</text></g>`;
-  }).join("");
-  mount.innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">${graticule.join("")}<g class="continent-layer">${continents}</g>${points}</svg>`;
-  mount.querySelectorAll("[data-region]").forEach(node => {
-    const region = DATA.regions.find(r => r.id === node.dataset.region);
-    const select = () => { selectedRegionId = region.id; renderMap(); renderRegionDetail(region); };
-    node.addEventListener("click", select);
-    node.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") select(); });
+  if (!window.L) {
+    mount.innerHTML = "<p style='padding:1rem;color:#afa8a0'>Interactive map could not load. Check the map package connection.</p>";
+    return;
+  }
+  if (!riskMapInstance) {
+    riskMapInstance = L.map(mount, {
+      zoomControl: true,
+      scrollWheelZoom: false,
+      worldCopyJump: true,
+      attributionControl: true
+    }).setView([18, 35], 2);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      maxZoom: 8,
+      minZoom: 2,
+      attribution: "&copy; OpenStreetMap &copy; CARTO"
+    }).addTo(riskMapInstance);
+    riskMarkerLayer = L.layerGroup().addTo(riskMapInstance);
+    setTimeout(() => riskMapInstance.invalidateSize(), 120);
+  }
+  riskMarkerLayer.clearLayers();
+  riskMarkers.clear();
+  DATA.regions.forEach(region => {
+    const score = composite(region);
+    const radius = productionRadius(region[activeScenario].productionRiskMt);
+    const selected = region.id === selectedRegionId;
+    const marker = L.circleMarker([region.lat, region.lon], {
+      radius,
+      color: selected ? "#f5efe7" : "rgba(255,255,255,.74)",
+      weight: selected ? 3 : 1.4,
+      fillColor: riskColor(score),
+      fillOpacity: .9,
+      opacity: 1
+    }).addTo(riskMarkerLayer);
+    marker.bindTooltip(`<strong>${region.name}, ${region.country}</strong><span>Composite index: ${score}/100</span><span>Production at risk: ${region[activeScenario].productionRiskMt} Mt</span>`, { className: "risk-tooltip" });
+    marker.on("click", () => { selectedRegionId = region.id; renderMap(); renderRegionDetail(region); });
+    L.marker([region.lat, region.lon], {
+      interactive: false,
+      icon: L.divIcon({ className: "risk-marker-label", html: region.name, iconSize: [120, 16], iconAnchor: [-radius - 7, radius + 10] })
+    }).addTo(riskMarkerLayer);
+    riskMarkers.set(region.id, marker);
   });
   const legend = document.querySelector(".map-legend");
   if (legend) legend.innerHTML = `<span><i class="low"></i> Low composite exposure</span><span><i class="medium"></i> Medium</span><span><i class="high"></i> High</span><span><i class="critical"></i> Critical</span><span class="legend-note">Circle size indicates production-at-risk.</span>`;
