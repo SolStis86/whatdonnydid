@@ -14,6 +14,32 @@
   overflow: hidden;
 }
 
+.maplibregl-marker {
+  z-index: 3;
+}
+
+.maplibre-risk-label {
+  border: 0;
+  background: rgba(7, 10, 15, .46);
+  color: #f5efe7;
+  border-radius: 999px;
+  padding: .18rem .42rem;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.1;
+  font-weight: 850;
+  white-space: nowrap;
+  cursor: pointer;
+  text-shadow: 0 2px 8px rgba(0,0,0,.95), 0 0 2px rgba(0,0,0,.9);
+  box-shadow: 0 6px 18px rgba(0,0,0,.26);
+}
+
+.maplibre-risk-label:hover,
+.maplibre-risk-label.is-selected {
+  background: rgba(245, 239, 231, .14);
+  outline: 1px solid rgba(245, 239, 231, .32);
+}
+
 .maplibregl-ctrl-top-left {
   top: 12px;
   left: 12px;
