@@ -7,70 +7,20 @@
   <meta name="description" content="A hard-hitting data portal tracing how geopolitical disruption can cascade into fertiliser shocks, crop stress and global food risk.">
   <link rel="stylesheet" href="assets/css/styles.css?v=20260427-2">
   <link rel="stylesheet" href="assets/css/performance.css?v=20260427-1">
+  <link rel="stylesheet" href="assets/css/review-improvements.css?v=20260427-1">
 </head>
 <body>
   <div class="noise"></div>
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="What Donald Did home">
-      <span class="brand-mark">WDD</span>
-      <span>What Donald Did...</span>
-    </a>
-    <nav aria-label="Primary navigation">
-      <a href="#ripple">Ripple Effect</a>
-      <a href="#map">Risk Map</a>
-      <a href="#model">Model</a>
-      <a href="#regions">Regions</a>
-      <a href="#sources">Sources</a>
-    </nav>
+    <a class="brand" href="#top" aria-label="What Donald Did home"><span class="brand-mark">WDD</span><span>What Donald Did...</span></a>
+    <nav aria-label="Primary navigation"><a href="#ripple">Ripple Effect</a><a href="#map">Risk Map</a><a href="#model">Model</a><a href="#regions">Regions</a><a href="#sources">Sources</a></nav>
   </header>
-
   <main id="top">
     <section class="hero section-grid">
-      <div class="hero-copy">
-        <p class="eyebrow">Policy shock → supply-chain stress → food-system risk</p>
-        <h1>What Donald Did...</h1>
-        <p class="lede">
-          The chain from power to plate, traced in one place. This site follows how political escalation and conflict around
-          the Strait of Hormuz can move through energy, fertiliser, farm decisions and food prices — exposing who is likely to pay the price, where, and why.
-        </p>
-        <div class="hero-actions">
-          <a class="button primary" href="#map">Explore the risk map</a>
-          <a class="button secondary" href="#model">Read the model</a>
-        </div>
-        <p class="method-note">
-          Follow the chain: sourced evidence, scenario ranges, regional exposure and the people most at risk.
-        </p>
-      </div>
-
-      <div class="hero-panel">
-        <div class="panel-topline">
-          <span>Scenario engine</span>
-          <strong id="scenario-label">Base case</strong>
-        </div>
-        <div class="scenario-buttons" role="group" aria-label="Scenario selector">
-          <button class="scenario-button" data-scenario="lower">Lower</button>
-          <button class="scenario-button active" data-scenario="base">Base</button>
-          <button class="scenario-button" data-scenario="upper">Upper</button>
-        </div>
-        <p id="scenario-description" class="scenario-description"></p>
-        <div class="shock-meter" aria-label="Shock severity meter">
-          <span></span>
-        </div>
-        <div class="mini-brief">
-          <strong>The question:</strong>
-          <span>Where does a fertiliser shock become a crop shock — and where does a crop shock become a human shock?</span>
-        </div>
-      </div>
+      <div class="hero-copy"><p class="eyebrow">Policy shock → supply-chain stress → food-system risk</p><h1>What Donald Did...</h1><p class="lede">The chain from power to plate, traced in one place. This site follows how political escalation and conflict around the Strait of Hormuz can move through energy, fertiliser, farm decisions and food prices — exposing who is likely to pay the price, where, and why.</p><div class="hero-actions"><a class="button primary" href="#map">Explore the risk map</a><a class="button secondary" href="#model">Read the model</a></div><p class="method-note">Follow the chain: sourced evidence, scenario ranges, regional exposure and the people most at risk.</p></div>
+      <div class="hero-panel"><div class="panel-topline"><span>Scenario engine</span><strong id="scenario-label">Base case</strong></div><div class="scenario-buttons" role="group" aria-label="Scenario selector"><button class="scenario-button" data-scenario="lower">Lower</button><button class="scenario-button active" data-scenario="base">Base</button><button class="scenario-button" data-scenario="upper">Upper</button></div><p id="scenario-description" class="scenario-description"></p><div class="shock-meter" aria-label="Shock severity meter"><span></span></div><div class="mini-brief"><strong>The question:</strong><span>Where does a fertiliser shock become a crop shock — and where does a crop shock become a human shock?</span></div></div>
     </section>
-
-    <section class="metrics" aria-label="Key metrics">
-      <article class="metric-card"><span>Urea exposure</span><strong id="metric-urea">—</strong><small>Gulf/Hormuz-linked nitrogen pathway</small></article>
-      <article class="metric-card"><span>Ammonia trade at risk</span><strong id="metric-ammonia">—</strong><small>Base chemical for nitrogen fertilisers</small></article>
-      <article class="metric-card"><span>Crop yield pressure</span><strong id="metric-yield">—</strong><small>Bounded admin-area scenario range</small></article>
-      <article class="metric-card"><span>Food price risk</span><strong id="metric-price">—</strong><small>Commodity and retail pass-through</small></article>
-      <article class="metric-card danger"><span>Population exposed</span><strong id="metric-population">—</strong><small>Living in regions with elevated model risk</small></article>
-    </section>
-
+    <section class="metrics" aria-label="Key metrics"><article class="metric-card"><span>Urea exposure</span><strong id="metric-urea">—</strong><small>Gulf/Hormuz-linked nitrogen pathway</small></article><article class="metric-card"><span>Ammonia trade at risk</span><strong id="metric-ammonia">—</strong><small>Base chemical for nitrogen fertilisers</small></article><article class="metric-card"><span>Crop yield pressure</span><strong id="metric-yield">—</strong><small>Bounded admin-area scenario range</small></article><article class="metric-card"><span>Food price risk</span><strong id="metric-price">—</strong><small>Commodity and retail pass-through</small></article><article class="metric-card danger"><span>Population exposed</span><strong id="metric-population">—</strong><small>Living in regions with elevated model risk</small></article></section>
     <section id="ripple" class="section-card"><div class="section-heading"><p class="eyebrow">The Ripple Effect</p><h2>How a strait becomes a food crisis</h2><p>The food impact does not begin with grain ships. It begins with energy, sulphur, ammonia and fertiliser affordability. The model tracks the cascade from chokepoint disruption to field-level production risk.</p></div><div id="cascade" class="cascade" aria-label="Cascade diagram"></div></section>
     <section id="map" class="section-card map-section"><div class="section-heading"><p class="eyebrow">Global admin-area exposure</p><h2>Risk map: nutrient shortfall × yield sensitivity × food stress</h2><p>Risk points identify agricultural regions where fertiliser dependence, crop sensitivity and food-security pressure combine into a sharper threat. Each selected area shows how a global supply-chain shock can become a local harvest risk.</p></div><div class="map-layout"><div class="map-card"><div id="risk-map" class="risk-map" role="img" aria-label="Stylised world map with high-risk farming regions"></div><div class="map-legend"><span><i class="low"></i> Low</span><span><i class="medium"></i> Medium</span><span><i class="high"></i> High</span><span><i class="critical"></i> Critical</span></div></div><aside class="region-detail" id="region-detail"><p class="eyebrow">Selected region</p><h3>Click a point</h3><p>Select an admin area on the map to inspect the current scenario estimate.</p></aside></div></section>
     <section class="charts-grid"><article class="section-card chart-card"><div class="section-heading compact"><p class="eyebrow">Input pressure</p><h2>Fertiliser and diesel price index</h2><p>A clear view of how rising input costs can move faster than food prices, placing pressure on farmers before harvest losses appear.</p></div><div id="price-chart" class="chart"></div></article><article class="section-card chart-card"><div class="section-heading compact"><p class="eyebrow">Crop exposure</p><h2>Where the nutrient shock lands</h2><p>Estimated exposure by nutrient and energy pathway, showing why some crops carry far greater fertiliser-shock risk than others.</p></div><div id="crop-chart" class="chart"></div></article></section>
@@ -79,9 +29,7 @@
     <section class="section-card callout"><p class="eyebrow">Editorial line</p><h2>This is what accountability looks like when the spreadsheet reaches the supermarket shelf.</h2><p>The portal should not simply say “prices are up.” It should show the path: who made decisions, which chokepoints were stressed, which farming regions were exposed, which communities carried the cost, and what data proves the chain.</p></section>
     <section id="sources" class="section-card sources-section"><div class="section-heading"><p class="eyebrow">Sources and data backbone</p><h2>Evidence layer, auditable and linked</h2><p>These sources anchor the supply-chain, fertiliser, crop and administrative-area data used to explain the crisis pathway.</p></div><div id="source-list" class="source-list"></div></section>
   </main>
-
   <footer class="site-footer"><p><strong>What Donald Did...</strong> follows the chain from geopolitical decisions to food-system consequences.</p><p>Scenario estimates are bounded analytical ranges and should be read alongside the linked source base.</p></footer>
-
-  <script src="assets/js/app.js?v=20260427-2"></script>
+  <script src="assets/js/app.js?v=20260427-3"></script>
 </body>
 </html>
