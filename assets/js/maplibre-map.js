@@ -243,7 +243,7 @@ function updateRiskSource(data = buildRiskGeoJson()) {
 
 async function loadOceanMask(map) {
   try {
-    const res = await fetch("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.json");
+    const res = await fetch("https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_land.geojson");
     if (!res.ok) return;
     const land = await res.json();
 
