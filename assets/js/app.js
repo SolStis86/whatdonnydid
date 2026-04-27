@@ -22,10 +22,6 @@ const DATA = {
 
 let activeScenario = "base";
 let selectedRegionId = "sindh";
-let riskMapInstance = null;
-let riskMarkerLayer = null;
-let heatLayer = null;
-let riskMarkers = new Map();
 const scenarioRank = { lower: 38, base: 62, upper: 92 };
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const riskColor = score => score >= 85 ? "#ef4444" : score >= 65 ? "#f97316" : score >= 40 ? "#fbbf24" : "#22c55e";
@@ -98,84 +94,6 @@ function renderCascade() {
   const mount = document.getElementById("cascade");
   if (!mount) return;
   mount.innerHTML = DATA.cascade.map((item, index) => `<article class="cascade-step"><span class="cascade-index">${String(index + 1).padStart(2, "0")}</span><h3>${item.label}</h3><p>${item.detail}</p></article>`).join("");
-}
-
-function productionRadius(mt) { return clamp(7 + Math.sqrt(Math.max(mt, 0.1)) * 5.2, 9, 23); }
-
-function renderMap() {
-  const mount = document.getElementById("risk-map");
-  if (!mount) return;
-  if (!window.L) {
-    mount.innerHTML = "<p style='padding:1rem;color:#afa8a0'>Interactive map could not load. Check the map package connection.</p>";
-    return;
-  }
-  if (!riskMapInstance) {
-    riskMapInstance = L.map(mount, {
-      zoomControl: true,
-      scrollWheelZoom: false,
-      worldCopyJump: true,
-      attributionControl: true
-    }).setView([18, 35], 2);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      maxZoom: 8,
-      minZoom: 2,
-      attribution: "&copy; OpenStreetMap &copy; CARTO"
-    }).addTo(riskMapInstance);
-    riskMapInstance.createPane("heatPane");
-    riskMapInstance.getPane("heatPane").style.zIndex = 250;
-    const heatRenderer = L.svg({ padding: 0.5, pane: "heatPane" });
-    heatLayer = L.layerGroup({ pane: "heatPane" }).addTo(riskMapInstance);
-    heatLayer._renderer = heatRenderer;
-    riskMarkerLayer = L.layerGroup().addTo(riskMapInstance);
-    setTimeout(() => riskMapInstance.invalidateSize(), 120);
-  }
-  heatLayer.clearLayers();
-  riskMarkerLayer.clearLayers();
-  riskMarkers.clear();
-  DATA.regions.forEach(region => {
-    const score = composite(region);
-    const color = riskColor(score);
-    L.circle([region.lat, region.lon], {
-      radius: 800000,
-      pane: "heatPane",
-      renderer: L.svg({ padding: 0.5 }),
-      className: "heat-blob-outer",
-      fillColor: color,
-      fillOpacity: 0.36,
-      stroke: false
-    }).addTo(heatLayer);
-    L.circle([region.lat, region.lon], {
-      radius: 350000,
-      pane: "heatPane",
-      renderer: L.svg({ padding: 0.5 }),
-      className: "heat-blob-mid",
-      fillColor: color,
-      fillOpacity: 0.55,
-      stroke: false
-    }).addTo(heatLayer);
-  });
-  DATA.regions.forEach(region => {
-    const score = composite(region);
-    const radius = productionRadius(region[activeScenario].productionRiskMt);
-    const selected = region.id === selectedRegionId;
-    const marker = L.circleMarker([region.lat, region.lon], {
-      radius,
-      color: selected ? "#f5efe7" : "rgba(255,255,255,.74)",
-      weight: selected ? 3 : 1.4,
-      fillColor: riskColor(score),
-      fillOpacity: .9,
-      opacity: 1
-    }).addTo(riskMarkerLayer);
-    marker.bindTooltip(`<strong>${region.name}, ${region.country}</strong><span>Composite index: ${score}/100</span><span>Production at risk: ${region[activeScenario].productionRiskMt} Mt</span>`, { className: "risk-tooltip" });
-    marker.on("click", () => { selectedRegionId = region.id; renderMap(); renderRegionDetail(region); });
-    L.marker([region.lat, region.lon], {
-      interactive: false,
-      icon: L.divIcon({ className: "risk-marker-label", html: region.name, iconSize: [120, 16], iconAnchor: [-radius - 7, radius + 10] })
-    }).addTo(riskMarkerLayer);
-    riskMarkers.set(region.id, marker);
-  });
-  const legend = document.querySelector(".map-legend");
-  if (legend) legend.innerHTML = `<span><i class="low"></i> Low composite exposure</span><span><i class="medium"></i> Medium</span><span><i class="high"></i> High</span><span><i class="critical"></i> Critical</span><span class="legend-note">Circle size indicates production-at-risk.</span>`;
 }
 
 function renderRegionDetail(region) {
