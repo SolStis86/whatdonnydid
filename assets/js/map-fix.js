@@ -1,4 +1,4 @@
-// Leaflet map renderer patch: avoid custom divIcon label markers, which can conflict with Leaflet/CSS and render as broken tile-like blocks.
+// Leaflet map renderer patch: use reliable OSM tiles darkened by CSS and clean permanent labels.
 renderMap = function renderMap() {
   const mount = document.getElementById("risk-map");
   if (!mount) return;
@@ -18,10 +18,10 @@ renderMap = function renderMap() {
       maxBoundsViscosity: 0.6
     }).setView([16, 35], 2);
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      maxZoom: 8,
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 7,
       minZoom: 2,
-      attribution: "&copy; OpenStreetMap &copy; CARTO"
+      attribution: "&copy; OpenStreetMap contributors"
     }).addTo(riskMapInstance);
 
     riskMarkerLayer = L.layerGroup().addTo(riskMapInstance);
@@ -39,10 +39,10 @@ renderMap = function renderMap() {
 
     const marker = L.circleMarker([region.lat, region.lon], {
       radius,
-      color: selected ? "#f5efe7" : "rgba(255,255,255,.74)",
-      weight: selected ? 3 : 1.4,
+      color: selected ? "#f5efe7" : "rgba(255,255,255,.86)",
+      weight: selected ? 3.5 : 1.8,
       fillColor: riskColor(score),
-      fillOpacity: 0.9,
+      fillOpacity: 0.94,
       opacity: 1
     }).addTo(riskMarkerLayer);
 
@@ -53,14 +53,8 @@ renderMap = function renderMap() {
       className: "risk-marker-label"
     });
 
-    marker.on("mouseover", () => {
-      marker.setStyle({ weight: 3, color: "#f5efe7" });
-    });
-
-    marker.on("mouseout", () => {
-      marker.setStyle({ weight: selected ? 3 : 1.4, color: selected ? "#f5efe7" : "rgba(255,255,255,.74)" });
-    });
-
+    marker.on("mouseover", () => marker.setStyle({ weight: 3.5, color: "#f5efe7" }));
+    marker.on("mouseout", () => marker.setStyle({ weight: selected ? 3.5 : 1.8, color: selected ? "#f5efe7" : "rgba(255,255,255,.86)" }));
     marker.on("click", () => {
       selectedRegionId = region.id;
       renderMap();
