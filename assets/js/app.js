@@ -24,6 +24,7 @@ let activeScenario = "base";
 let selectedRegionId = "sindh";
 let riskMapInstance = null;
 let riskMarkerLayer = null;
+let heatLayer = null;
 let riskMarkers = new Map();
 const scenarioRank = { lower: 38, base: 62, upper: 92 };
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -120,11 +121,39 @@ function renderMap() {
       minZoom: 2,
       attribution: "&copy; OpenStreetMap &copy; CARTO"
     }).addTo(riskMapInstance);
+    riskMapInstance.createPane("heatPane");
+    riskMapInstance.getPane("heatPane").style.zIndex = 250;
+    const heatRenderer = L.svg({ padding: 0.5, pane: "heatPane" });
+    heatLayer = L.layerGroup({ pane: "heatPane" }).addTo(riskMapInstance);
+    heatLayer._renderer = heatRenderer;
     riskMarkerLayer = L.layerGroup().addTo(riskMapInstance);
     setTimeout(() => riskMapInstance.invalidateSize(), 120);
   }
+  heatLayer.clearLayers();
   riskMarkerLayer.clearLayers();
   riskMarkers.clear();
+  DATA.regions.forEach(region => {
+    const score = composite(region);
+    const color = riskColor(score);
+    L.circle([region.lat, region.lon], {
+      radius: 800000,
+      pane: "heatPane",
+      renderer: L.svg({ padding: 0.5 }),
+      className: "heat-blob-outer",
+      fillColor: color,
+      fillOpacity: 0.36,
+      stroke: false
+    }).addTo(heatLayer);
+    L.circle([region.lat, region.lon], {
+      radius: 350000,
+      pane: "heatPane",
+      renderer: L.svg({ padding: 0.5 }),
+      className: "heat-blob-mid",
+      fillColor: color,
+      fillOpacity: 0.55,
+      stroke: false
+    }).addTo(heatLayer);
+  });
   DATA.regions.forEach(region => {
     const score = composite(region);
     const radius = productionRadius(region[activeScenario].productionRiskMt);

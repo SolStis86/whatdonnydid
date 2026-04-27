@@ -164,3 +164,11 @@
 .map-legend {
   align-items: center;
 }
+
+.heat-blob-outer {
+  filter: blur(22px);
+}
+
+.heat-blob-mid {
+  filter: blur(9px);
+}
