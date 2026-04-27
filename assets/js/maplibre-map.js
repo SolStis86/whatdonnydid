@@ -221,6 +221,7 @@ renderMap = function renderMap() {
         mapLibreInstance.getCanvas().style.cursor = "";
       });
 
+      loadOceanMask(mapLibreInstance);
       renderMapLibreLabels();
     });
   } else {
@@ -238,4 +239,38 @@ function updateRiskSource(data = buildRiskGeoJson()) {
   if (!mapLibreInstance || !mapLibreLoaded) return;
   const source = mapLibreInstance.getSource("risk-regions");
   if (source) source.setData(data);
+}
+
+async function loadOceanMask(map) {
+  try {
+    const res = await fetch("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.json");
+    if (!res.ok) return;
+    const land = await res.json();
+
+    // Build ocean polygon: world bbox (CCW outer ring) with land areas as holes (CW inner rings)
+    const outerRing = [[-180, -85], [-180, 85], [180, 85], [180, -85], [-180, -85]];
+    const rings = [outerRing];
+    land.features.forEach(f => {
+      const geom = f.geometry;
+      if (geom.type === "Polygon") {
+        rings.push([...geom.coordinates[0]].reverse());
+      } else if (geom.type === "MultiPolygon") {
+        geom.coordinates.forEach(poly => rings.push([...poly[0]].reverse()));
+      }
+    });
+
+    map.addSource("ocean-mask", {
+      type: "geojson",
+      data: { type: "Feature", geometry: { type: "Polygon", coordinates: rings } }
+    });
+    // Insert above heatmap but below the clickable circle points
+    map.addLayer({
+      id: "ocean-fill",
+      type: "fill",
+      source: "ocean-mask",
+      paint: { "fill-color": "#070a0f", "fill-opacity": 0.96 }
+    }, "risk-points");
+  } catch (_) {
+    // silently degrade — map still works without the land mask
+  }
 }
