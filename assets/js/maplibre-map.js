@@ -34,6 +34,7 @@ function buildRiskGeoJson() {
 function mapLibreStyle() {
   return {
     version: 8,
+    glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
     sources: {
       cartoDark: {
         type: "raster",
@@ -174,7 +175,7 @@ renderMap = function renderMap() {
         source: "risk-regions",
         layout: {
           "text-field": ["get", "name"],
-          "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+          "text-font": ["Open Sans Bold"],
           "text-size": 13,
           "text-offset": [1.15, -0.95],
           "text-anchor": "left",
