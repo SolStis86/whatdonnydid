@@ -1,6 +1,8 @@
-// MapLibre GL risk map renderer: heatmap + circles + labels from the regional risk model.
+// MapLibre GL risk map renderer: heatmap + circles from the regional risk model.
+// Labels are rendered as HTML markers to avoid external glyph/font dependencies.
 let mapLibreInstance = null;
 let mapLibreLoaded = false;
+let mapLibreLabelMarkers = [];
 
 function buildRiskGeoJson() {
   return {
@@ -34,7 +36,6 @@ function buildRiskGeoJson() {
 function mapLibreStyle() {
   return {
     version: 8,
-    glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
     sources: {
       cartoDark: {
         type: "raster",
@@ -81,6 +82,37 @@ function scoreColorExpression() {
     85,
     "#ef4444"
   ];
+}
+
+function clearMapLibreLabels() {
+  mapLibreLabelMarkers.forEach(marker => marker.remove());
+  mapLibreLabelMarkers = [];
+}
+
+function renderMapLibreLabels() {
+  if (!mapLibreInstance) return;
+  clearMapLibreLabels();
+
+  DATA.regions.forEach(region => {
+    const label = document.createElement("button");
+    label.type = "button";
+    label.className = `maplibre-risk-label${region.id === selectedRegionId ? " is-selected" : ""}`;
+    label.textContent = region.name;
+    label.setAttribute("aria-label", `Select ${region.name}, ${region.country}`);
+    label.addEventListener("click", event => {
+      event.stopPropagation();
+      selectedRegionId = region.id;
+      updateRiskSource();
+      renderRegionDetail(region);
+      renderMapLibreLabels();
+    });
+
+    const marker = new maplibregl.Marker({ element: label, anchor: "left", offset: [12, -12] })
+      .setLngLat([region.lon, region.lat])
+      .addTo(mapLibreInstance);
+
+    mapLibreLabelMarkers.push(marker);
+  });
 }
 
 renderMap = function renderMap() {
@@ -169,26 +201,6 @@ renderMap = function renderMap() {
         }
       });
 
-      mapLibreInstance.addLayer({
-        id: "risk-labels",
-        type: "symbol",
-        source: "risk-regions",
-        layout: {
-          "text-field": ["get", "name"],
-          "text-font": ["Open Sans Bold"],
-          "text-size": 13,
-          "text-offset": [1.15, -0.95],
-          "text-anchor": "left",
-          "text-allow-overlap": true,
-          "text-ignore-placement": true
-        },
-        paint: {
-          "text-color": "#f5efe7",
-          "text-halo-color": "rgba(0,0,0,0.88)",
-          "text-halo-width": 2.2
-        }
-      });
-
       mapLibreInstance.on("click", "risk-points", event => {
         const feature = event.features && event.features[0];
         if (!feature) return;
@@ -196,6 +208,7 @@ renderMap = function renderMap() {
         const region = DATA.regions.find(item => item.id === selectedRegionId);
         updateRiskSource();
         renderRegionDetail(region);
+        renderMapLibreLabels();
       });
 
       mapLibreInstance.on("mouseenter", "risk-points", () => {
@@ -205,9 +218,12 @@ renderMap = function renderMap() {
       mapLibreInstance.on("mouseleave", "risk-points", () => {
         mapLibreInstance.getCanvas().style.cursor = "";
       });
+
+      renderMapLibreLabels();
     });
   } else {
     updateRiskSource(data);
+    renderMapLibreLabels();
   }
 
   const legend = document.querySelector(".map-legend");
