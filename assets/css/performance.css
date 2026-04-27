@@ -1,0 +1,74 @@
+/* Performance overrides: reduce expensive paint/compositing work while preserving the visual language. */
+:root {
+  --panel: rgba(17, 21, 29, 0.96);
+  --shadow: 0 14px 36px rgba(0, 0, 0, 0.38);
+}
+
+.noise {
+  display: none;
+}
+
+.site-header,
+.hero-panel,
+.section-card,
+.metric-card,
+.scenario-float {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.site-header {
+  background: rgba(9, 11, 15, 0.94);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+}
+
+.hero-panel,
+.section-card,
+.metric-card,
+.scenario-float {
+  background: rgba(17, 21, 29, 0.96);
+  box-shadow: var(--shadow);
+}
+
+.hero-panel::before {
+  opacity: 0.55;
+}
+
+.scenario-float::before {
+  opacity: 0.45;
+}
+
+.brand-mark {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.24);
+}
+
+.button.primary {
+  box-shadow: 0 12px 28px rgba(239, 68, 68, 0.18);
+}
+
+.risk-point {
+  filter: none;
+}
+
+.risk-label {
+  stroke-width: 3px;
+}
+
+.chart,
+.risk-map {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
