@@ -154,24 +154,26 @@ renderMap = function renderMap() {
         source: "risk-regions",
         maxzoom: 5.5,
         paint: {
-          "heatmap-weight": ["interpolate", ["linear"], ["get", "score"], 0, 0, 100, 1],
-          "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 1, 0.75, 5.5, 1.8],
-          "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 1, 28, 5.5, 62],
-          "heatmap-opacity": 0.42,
+          "heatmap-weight": ["interpolate", ["linear"], ["get", "score"], 0, 0.3, 40, 0.6, 100, 1],
+          "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 1, 2.5, 5.5, 6],
+          "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 1, 180, 5.5, 500],
+          "heatmap-opacity": 0.84,
           "heatmap-color": [
             "interpolate",
             ["linear"],
             ["heatmap-density"],
             0,
-            "rgba(34,197,94,0)",
-            0.25,
-            "rgba(34,197,94,0.35)",
-            0.5,
-            "rgba(251,191,36,0.48)",
-            0.75,
-            "rgba(249,115,22,0.58)",
+            "rgba(0,0,0,0)",
+            0.08,
+            "rgba(34,197,94,0.55)",
+            0.3,
+            "rgba(251,191,36,0.75)",
+            0.55,
+            "rgba(249,115,22,0.88)",
+            0.8,
+            "rgba(239,68,68,0.95)",
             1,
-            "rgba(239,68,68,0.7)"
+            "rgba(200,30,30,1)"
           ]
         }
       });
