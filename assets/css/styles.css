@@ -110,6 +110,9 @@ h3 { font-size: 1.35rem; line-height: 1.1; letter-spacing: -.04em; margin-bottom
 .line-urea { fill: none; stroke: var(--red); stroke-width: 4; }
 .line-dap { fill: none; stroke: var(--orange); stroke-width: 4; }
 .line-diesel { fill: none; stroke: var(--amber); stroke-width: 4; }
+.legend-urea { fill: var(--red); font-size: 12px; font-weight: 700; }
+.legend-dap { fill: var(--orange); font-size: 12px; font-weight: 700; }
+.legend-diesel { fill: var(--amber); font-size: 12px; font-weight: 700; }
 .table-wrap { overflow-x: auto; border-radius: 18px; border: 1px solid rgba(255,255,255,.1); }
 table { width: 100%; border-collapse: collapse; min-width: 900px; }
 th, td { padding: .95rem .8rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,.08); }
